@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="discription" content="image manager">
+    <title>image manager</title>
+    <link rel="icon" href="favicon.ico">
+    <link rel="stylesheet" href="./public/stylesheets/normalize.css">
+    <link rel='stylesheet' href='./public/stylesheets/index.css' />
+    <link rel='stylesheet' href='./public/stylesheets/iconfont/iconfont.css' />
+    <!--[if lt IE 9]>
+        <script src="//cdn.bootcss.com/html5shiv/r29/html5.min.js"></script>
+    <![endif]-->
+</head>
+<body>
+    <aside class="aside">
+        <header class="text-center">
+            <h1>照片管理器</h1>
+        </header>
+        <div class="operation text-center">
+            <button><i class="icon iconfont">&#xe601;</i> 新建相册</button>
+        </div>
+        <nav class="nav">
+            <ul>
+                <% albums.forEach(function (album) { %>
+                <li data-album-id="<%= album._id %>">
+                    <span class="name"><%= album.name %></span>
+                    <input class="hide" type="text" value="<%= album.name %>" >
+                    <span class="quantity">(<%= album.quantity %>)</span>
+                    <span class="icon-fa <%= album.name === '全部' ? 'hide' : '' %>">
+                        <i class="icon iconfont edit" title="重命名">&#xe600;</i>
+                        <i class="icon iconfont delete" title="删除">&#xe602;</i>
+                    </span>
+                </li>
+                <% }); %>
+            </ul>
+        </nav>
+    </aside>
+    <main class="main clearfix">
+        <div class="import text-right">
+            <!-- <form method="post" enctype="multipart/form-data">
+                <input type="file" name="file">
+                <button type="submit">导入图片</button>
+            </form> -->
+            <div id="imagePicker">导入图片</div>
+        </div>
+        <article class="images">
+            <section class="hide photo-template" data-image-id="">
+                <img />
+                <div class="info">
+                    <span class="name"></span>
+                    <div class="op">
+                        <i class="icon iconfont more">&#xe603;</i>
+                        <ul class="hide">
+                            <li class="edit"><i class="icon iconfont">&#xe605;</i> 编辑</li>
+                            <!-- <li class="move"><i class="icon iconfont">&#xe604;</i> 挪动</li> -->
+                            <li class="delete"><i class="icon iconfont">&#xe602;</i> 删除</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            <% images.forEach(function (image) { %>
+            <section data-image-id="<%= image._id %>">
+                <img src="<%= image.src %>" >
+                <div class="info">
+                    <span class="name"><%= image.name %></span>
+                    <div class="op">
+                        <i class="icon iconfont more">&#xe603;</i>
+                        <ul class="hide">
+                            <li class="edit"><i class="icon iconfont">&#xe605;</i> 编辑</li>
+                            <!-- <li class="move"><i class="icon iconfont">&#xe604;</i> 挪动</li> -->
+                            <li class="delete"><i class="icon iconfont">&#xe602;</i> 删除</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+            <% }) %>
+        </article>
+        <div class="viewer hide">
+            <div class="shade"></div>
+            <div class="image">
+                <div class="image-inner">
+                    <img />
+                </div>
+            </div>
+            <i class="icon iconfont close">&#xe607;</i>
+            <i class="icon iconfont left">&#xe606;</i>
+            <i class="icon iconfont right">&#xe608;</i>
+        </div>
+        <div class="operation hide">
+            <div class="shade"></div>
+            <div class="image">
+                <div class="image-inner">
+                    <img src="<%= images[0].src %>"/>
+                </div>
+                <div class="image-info">
+                    <p>名称：<input type="text" value="名称"></p>
+                    <div class="category">
+                        分类：
+                        <div class="category-inner">
+                            <p><input type="checkbox" value="分类1"> 分类1</p>
+                            <p><input type="checkbox" value="分类1"> 分类1</p>
+                            <p><input type="checkbox" value="分类1"> 分类1</p>
+                            <p><input type="checkbox" value="分类1"> 分类1</p>
+                            <p><input type="checkbox" value="分类1"> 分类1</p>
+                        </div>
+                    </div>
+                    <div class="button text-center">
+                        <button class="submit">确认更改</button>
+                    </div>
+                </div>
+            </div>
+            <i class="icon iconfont close">&#xe607;</i>
+            <i class="icon iconfont left">&#xe606;</i>
+            <i class="icon iconfont right">&#xe608;</i>
+        </div>
+    </main>
+    <div class="hidden-info hide">
+        <input type="hidden" name="albums" value="<%= JSON.stringify(albums) %>">
+        <input type="hidden" name="images" value="<%= JSON.stringify(images) %>">
+    </div>
+<script src="//cdn.bootcss.com/jquery/1.11.3/jquery.min.js"></script>
+<script src="//cdn.bootcss.com/webuploader/0.1.1/webuploader.min.js"></script>
+<!-- <script src="./public/javascripts/libs/jquery-v1.11.3.min.js"></script> -->
+<script src="./public/javascripts/index.js"></script>
+</body>
+</html>

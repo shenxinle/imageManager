@@ -1,0 +1,236 @@
+body {
+  background-color: #ededed; }
+
+button.default, .aside .operation button, .main .operation .image .image-info .button button.submit {
+  border-radius: 3px;
+  padding: 10px 20px;
+  color: #f9f9f9;
+  background-color: #222;
+  cursor: pointer; }
+
+.aside {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  width: 200px;
+  background-color: #2b4064; }
+  .aside header h1 {
+    color: #fff;
+    line-height: 3;
+    font-weight: 600;
+    background-color: #2c3049; }
+  .aside .operation button {
+    margin: 40px 0 50px 0;
+    padding: 5px 15px;
+    color: #eee;
+    background-color: #f78755; }
+    .aside .operation button .icon {
+      margin-right: 5px;
+      font-size: 1em; }
+  .aside .nav li {
+    padding-left: 20px;
+    border-top: 1px solid #2a3f63;
+    border-bottom: 1px solid #2a3f63;
+    border-left: 5px solid transparent;
+    color: #ccc;
+    line-height: 3;
+    background-color: #2b446b;
+    cursor: pointer; }
+    .aside .nav li input {
+      width: 100px;
+      color: inherit; }
+    .aside .nav li .icon-fa {
+      float: right;
+      display: none; }
+      .aside .nav li .icon-fa .icon {
+        margin-right: 3px;
+        display: inline-block;
+        padding: 5px;
+        line-height: 1;
+        color: #bbb; }
+        .aside .nav li .icon-fa .icon:first-child {
+          margin-right: 0; }
+        .aside .nav li .icon-fa .icon:hover {
+          color: #ddd;
+          background-color: #2d5e9c; }
+        .aside .nav li .icon-fa .icon:active {
+          color: #fff;
+          background-color: #2d5eac; }
+    .aside .nav li.on, .aside .nav li:hover {
+      border-left-color: #f88953;
+      background-color: #2d4e7c; }
+      .aside .nav li.on .icon-fa, .aside .nav li:hover .icon-fa {
+        display: inline; }
+      .aside .nav li.on .icon-fa.hide, .aside .nav li:hover .icon-fa.hide {
+        display: none; }
+
+.main div.import #imagePicker {
+  margin: 20px 0 20px 200px;
+  padding: 5px 40px;
+  border-radius: 3px;
+  color: #ccc;
+  font-weight: 500;
+  position: relative; }
+  .main div.import #imagePicker .webuploader-element-invisible {
+    position: absolute !important;
+    clip: rect(1px 1px 1px 1px);
+    /* IE6, IE7 */
+    clip: rect(1px, 1px, 1px, 1px); }
+  .main div.import #imagePicker .webuploader-pick {
+    position: relative;
+    display: inline-block;
+    cursor: pointer;
+    background-color: #2b4064;
+    padding: 10px 15px;
+    color: #fff;
+    text-align: center;
+    border-radius: 3px;
+    overflow: hidden; }
+  .main div.import #imagePicker .webuploader-pick-hover {
+    background-color: #2b5074; }
+  .main div.import #imagePicker .webuploader-pick-disable {
+    opacity: 0.6;
+    pointer-events: none; }
+
+.main > .images {
+  margin-left: 200px;
+  padding: 0 10px; }
+  .main > .images section {
+    float: left;
+    margin: 0 10px 20px;
+    width: 250px;
+    padding: 10px 10px 0;
+    background-color: #fff; }
+    .main > .images section img {
+      width: 230px;
+      height: 160px; }
+    .main > .images section .info {
+      color: #888;
+      line-height: 2;
+      background-color: #fff; }
+      .main > .images section .info .op {
+        display: inline-block;
+        float: right;
+        position: relative; }
+        .main > .images section .info .op > .icon {
+          line-height: 1.25;
+          font-size: 1.6em; }
+          .main > .images section .info .op > .icon:hover {
+            background-color: #ddd; }
+        .main > .images section .info .op ul {
+          position: absolute;
+          right: 0;
+          bottom: 30px;
+          width: 100px;
+          background-color: #2b4064;
+          font-size: 12px;
+          color: #eee; }
+          .main > .images section .info .op ul li {
+            border-left: 5px solid #2b4064;
+            padding-left: 15px;
+            line-height: 2; }
+            .main > .images section .info .op ul li:hover {
+              border-left-color: #f88953;
+              color: #fff;
+              background-color: #3b5084; }
+            .main > .images section .info .op ul li .icon {
+              font-size: .9em; }
+        .main > .images section .info .op:hover ul {
+          display: block; }
+
+.main .viewer.operation, .main .viewer, .main .operation {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  color: #fff; }
+  .main .viewer.operation .shade, .main .viewer .shade, .main .operation .shade {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: #000;
+    opacity: .6;
+    filter: alpha(opacity=60); }
+  .main .viewer.operation .icon, .main .viewer .icon, .main .operation .icon {
+    position: absolute;
+    display: inline-block;
+    padding: 5px;
+    font-size: 40px;
+    cursor: pointer; }
+    .main .viewer.operation .icon.close, .main .viewer .icon.close, .main .operation .icon.close {
+      top: 30px;
+      right: 50px; }
+    .main .viewer.operation .icon.left, .main .viewer .icon.left, .main .operation .icon.left {
+      left: 30px;
+      top: 50%;
+      margin-top: -20px; }
+    .main .viewer.operation .icon.right, .main .viewer .icon.right, .main .operation .icon.right {
+      right: 30px;
+      top: 50%;
+      margin-top: -20px; }
+    .main .viewer.operation .icon:hover, .main .viewer .icon:hover, .main .operation .icon:hover {
+      background-color: #000;
+      opacity: .3;
+      filter: alpha(opacity=30); }
+
+.main .viewer .image {
+  position: absolute;
+  width: 1000px;
+  height: 800px;
+  left: 50%;
+  top: 50%;
+  margin-left: -500px;
+  margin-top: -400px; }
+  .main .viewer .image .image-inner {
+    width: 1000px;
+    height: 800px;
+    display: table-cell;
+    vertical-align: middle;
+    text-align: center; }
+    .main .viewer .image .image-inner img {
+      max-width: 100%;
+      max-height: 100%; }
+
+.main .operation .image {
+  position: absolute;
+  width: 400px;
+  height: 500px;
+  left: 50%;
+  top: 50%;
+  margin-left: -200px;
+  margin-top: -250px;
+  border: 5px solid #fff; }
+  .main .operation .image .image-inner, .main .operation .image .image-info {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 50%; }
+  .main .operation .image .image-inner {
+    top: 0; }
+    .main .operation .image .image-inner img {
+      width: 100%;
+      height: 100%; }
+  .main .operation .image .image-info {
+    top: 50%;
+    padding: 10px;
+    color: #111;
+    background-color: #eee; }
+    .main .operation .image .image-info > p {
+      line-height: 1.6; }
+      .main .operation .image .image-info > p input[type="text"] {
+        border: 1px solid #ccc;
+        background-color: #fff; }
+    .main .operation .image .image-info .category-inner {
+      max-height: 150px;
+      overflow-y: auto; }
+      .main .operation .image .image-info .category-inner p {
+        padding-left: 3em;
+        line-height: 1.3; }
+    .main .operation .image .image-info .button {
+      position: absolute;
+      bottom: 10px;
+      width: 100%; }
+
+/*# sourceMappingURL=index.css.map */
