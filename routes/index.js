@@ -7,11 +7,11 @@ var router = express.Router();
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
-    db.Album.find({}).exec(function (err, albums) {
+    db.Album.find({}).sort({sort: 1}).exec(function (err, albums) {
         if (err) {
             console.log('query albums failed');
         }
-        db.Photo.find({}).exec(function (err, images) {
+        db.Photo.find({}).sort({sort: 1}).exec(function (err, images) {
             if (err) {
                 console.log('query photos failed');
             }

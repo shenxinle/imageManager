@@ -13,7 +13,8 @@ db.once('open', function () {
 // albums collection
 var AlbumSchema = mongoose.Schema({
     name: String,
-    quantity: Number
+    quantity: Number,
+    sort: Number
 }, {
     collection: 'albums'
 });
@@ -22,7 +23,9 @@ var Album = mongoose.model('Album', AlbumSchema);
 // photos collection
 var PhotoSchema = mongoose.Schema({
     name: String,
-    src: String
+    src: String,
+    albums: String,
+    sort: Number
 }, {
     collection: 'photos'
 });

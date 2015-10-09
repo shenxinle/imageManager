@@ -70,6 +70,8 @@ button.default {
         &.on, &:hover {
             border-left-color: #f88953;
             background-color: #2d4e7c;
+        }
+        &:hover {
             .icon-fa {
                 display: inline;
             }

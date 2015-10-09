@@ -60,10 +60,10 @@ button.default, .aside .operation button, .main .operation .image .image-info .b
     .aside .nav li.on, .aside .nav li:hover {
       border-left-color: #f88953;
       background-color: #2d4e7c; }
-      .aside .nav li.on .icon-fa, .aside .nav li:hover .icon-fa {
-        display: inline; }
-      .aside .nav li.on .icon-fa.hide, .aside .nav li:hover .icon-fa.hide {
-        display: none; }
+    .aside .nav li:hover .icon-fa {
+      display: inline; }
+    .aside .nav li:hover .icon-fa.hide {
+      display: none; }
 
 .main div.import #imagePicker {
   margin: 20px 0 20px 200px;

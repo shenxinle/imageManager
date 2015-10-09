@@ -4,8 +4,56 @@ $(function () {
         albums: JSON.parse($('.hidden-info [name="albums"]').val()),
         images: JSON.parse($('.hidden-info [name="images"]').val())
     }
+    imageManager.albumsMaxSort = imageManager.albums[imageManager.albums.length-1].sort;
+    imageManager.imagesMaxSort = imageManager.images[imageManager.images.length-1].sort;
+    imageManager.thisAlbum = {
+        _id: imageManager.albums[0]._id,
+        name: imageManager.albums[0].name
+    };
     // console.log(imageManager.albums);
     // console.log(imageManager.images);
+
+// go to album
+    $('.aside .nav li').on('click', function () {
+        var thisLi = $(this);
+        if (thisLi.hasClass('on')) {
+            return;
+        }
+        var _id = thisLi.attr('data-album-id').trim();
+        var name = thisLi.find('.name').text().trim();
+        $.ajax({
+            url: '/ajax/getAlbum',
+            method: 'POST',
+            data: {
+                _id: _id,
+                name: name
+            }
+        }).done(function (msg) {
+            if(msg.title === 'success') {
+                thisLi.addClass('on')
+                    .siblings('li').removeClass('on');
+
+                $('.main .images > section:not(".photo-template")').remove();
+                for(var i = 0; i < msg.images.length; i++) {
+                    addPhoto(msg.images[i]);
+                }
+
+                imageManager.thisAlbum = {
+                    _id: _id,
+                    name: name
+                };
+            }
+        });
+    });
+
+    function addPhoto(photo) {
+        var photoSection = $('.main .images .photo-template').clone();
+        photoSection.removeClass('hide photo-template').attr('data-image-id', photo._id)
+            .find('img').attr('src', photo.src);
+        photoSection.find('.info .name').text(photo.name);
+
+        $('.main .images').append(photoSection);
+    }
 });
 
 $(function () {
@@ -98,12 +146,14 @@ $(function () {
     function newAlbum() {
         var name = '新建相册';
         var quantity = 0;
+        var sort = imageManager.albumsMaxSort + 1;
         $.ajax({
             url: '/ajax/addAlbum',
             method: 'POST',
             data: {
                 name: name,
-                quantity: quantity
+                quantity: quantity,
+                sort: sort
             }
         }).done(function (msg) {
             // console.log(msg);
@@ -118,6 +168,8 @@ $(function () {
                 addLi.find('.icon.delete').on('click', albumDelete);
                 addLi.find('.icon.edit').one('click', albumEdit)
                     .trigger('click');
+
+                imageManager.albumsMaxSort++;
             }
         });
     }
@@ -143,6 +195,11 @@ $(function () {
             mimeTypes: 'image/*'
         }
     });
+    uploader.on('uploadBeforeSend', function (block, data) {
+        data.albumId = imageManager.thisAlbum._id;
+        data.albumName = imageManager.thisAlbum.name;
+        data.sort = imageManager.imagesMaxSort + 1;
+    });
     uploader.on('uploadSuccess', function (file, msg) {
         if (msg.title === 'success') {
             var photoSection = $('.main .images .photo-template').clone();
@@ -150,10 +207,9 @@ $(function () {
                 .find('img').attr('src', msg.photo.src);
             photoSection.find('.info .name').text(msg.photo.name);
 
-            photoSection.find('.op .delete').on('click', photoDelete);
-            photoSection.find('img').on('dblclick', openPhotoViewer);
-
             $('.main .images').append(photoSection);
+
+            imageManager.imagesMaxSort++;
         }
     });
 
@@ -165,12 +221,50 @@ $(function () {
     //     $(this).find('ul').addClass('hide');
     // });
 
-    // photo delete
-    $('.main .images .op .delete').on('click', photoDelete);
+    /*
+    * photos event
+    */
+    $('.main .images').on('click', function (e) {
+        var $section = $(e.target).parents('.main .images > section');
+        if(!$section.length) {
+            return;
+        }
+        // console.log(e);
+        var $delete = $section.find('.op .delete');
+        var $edit = $section.find('.op .edit');
+        if ($delete.has(e.target).length || $delete[0] === e.target) {
+            photoDelete($section);
+        } else if ($edit.has(e.target).length || $edit[0] === e.target) {
+            operationPhoto($section);
+        }
+        return;
+    });
+    $('.main .images').on('dblclick', function (e) {
+        var $section = $(e.target).parents('.main .images > section');
+        if(!$section.length) {
+            return;
+        }
+        var $img = $section.find('img');
+        if ($img.has(e.target).length || $img[0] === e.target) {
+            openPhotoViewer($img);
+        }
+        return;
+    });
+    /*
+    * photo viewer
+    */
+    $('.main .viewer .icon.close').on('click', closePhotoViewer);
+    $('.main .viewer .icon.right').on('click', nextPhoto);
+    $('.main .viewer .icon.left').on('click', prevPhoto);
+    /*
+    * photo operation
+    */
+    $('.main .operation .button button').on('click', submitOperation);
+    $('.main .operation .icon.close').on('click', closeOperation);
 
-    function photoDelete() {
+    function photoDelete($section) {
         if(confirm('确认删除吗？')) {
-            var thisSection = $(this).parents('section');
+            var thisSection = $section;
             var _id = thisSection.attr('data-image-id').trim();
             var name = thisSection.find('.name').text().trim();
             $.ajax({
@@ -188,17 +282,9 @@ $(function () {
         }
     }
 
-    /*
-    * photo viewer
-    */
-    $('.main .images > section img').on('dblclick', openPhotoViewer);
-    $('.main .viewer .icon.close').on('click', closePhotoViewer);
-    $('.main .viewer .icon.right').on('click', nextPhoto);
-    $('.main .viewer .icon.left').on('click', prevPhoto);
-
-    function openPhotoViewer() {
-        var imgSrc = $(this).attr('src'),
-            dataImageId = $(this).parents('section').attr('data-image-id');
+    function openPhotoViewer($img) {
+        var imgSrc = $img.attr('src'),
+            dataImageId = $img.parents('section').attr('data-image-id');
 
         var $viewer = $('.main .viewer');
         $viewer.find('.image img').attr('src', imgSrc);
@@ -240,17 +326,65 @@ $(function () {
             .find('.image img').attr('src', prevImgSrc);
     }
 
-    /*
-    * photo operation
-    */
-    $('.main .images .op .edit').on('click', operationPhoto);
-    $('.main .operation .icon.close').on('click', closeOperation);
-    // $('.main .operation .icon.right').on('click', nextPhoto);
-    // $('.main .operation .icon.left').on('click', prevPhoto);
+    function operationPhoto($section) {
+        var thisPhoto = {
+            _id: $section.attr('data-image-id').trim(),
+            name: $section.find('.info .name').text().trim(),
+            src: $section.find('img').attr('src').trim()
+        }
+        $.ajax({
+            url: 'ajax/getOperationPhotoInfo',
+            method: 'POST',
+            data: thisPhoto,
+        }).done(function (msg) {
+            if(msg.title === 'success') {
+                var $operation = $('.main .operation');
+                var $checkboxTemplate = $operation.find('p.template');
+                $checkboxTemplate.siblings('p').remove();
 
-    function operationPhoto() {
-        var operation = $('.main .operation');
-        operation.removeClass('hide');
+                $operation.find('.image-inner img').attr('src', thisPhoto.src);
+                $operation.find('.image-info input[name="name"]').val(thisPhoto.name);
+                msg.albums.forEach(function (item, index, arr) {
+                    var $albumItem = $checkboxTemplate.clone();
+
+                    $albumItem.removeClass('template hide');
+                    $albumItem.find('input[type="checkbox"]').val(item._id);
+                    $albumItem.find('.album-name').text(item.name);
+                    if (msg.photo.albums.search(item._id) !== -1) {
+                        $albumItem.find('input[type="checkbox"]').prop('checked', true);
+                    }
+
+                    $albumItem.appendTo($checkboxTemplate.parent());
+                });
+
+                $operation.attr('data-image-id', thisPhoto._id).removeClass('hide');
+            }
+        });
+    }
+    function submitOperation() {
+        var $operation = $(this).parents('.main .operation');
+        var thisPhoto = {
+            _id: $operation.attr('data-image-id'),
+            name: $operation.find('input[name="name"]').val(),
+            albums: ''
+        };
+        var albumsArr = [];
+        $operation.find('.category-inner p:not(".template") input[type="checkbox"]').each(function (index, elem) {
+            var $elem = $(elem);
+            if($elem.prop('checked')) {
+                albumsArr.push($elem.val().trim());
+            }
+        });
+        thisPhoto.albums = albumsArr.join(',');
+        $.ajax({
+            url: 'ajax/changePhotoInfo',
+            method: 'POST',
+            data: thisPhoto
+        }).done(function (msg) {
+            if(msg.title === 'success') {
+                closeOperation();
+            }
+        });
     }
     function closeOperation() {
         $('.main .operation').addClass('hide');

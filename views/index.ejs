@@ -24,7 +24,7 @@
         <nav class="nav">
             <ul>
                 <% albums.forEach(function (album) { %>
-                <li data-album-id="<%= album._id %>">
+                <li class="<%= album.name === '全部' ? 'on' : '' %>" data-album-id="<%= album._id %>">
                     <span class="name"><%= album.name %></span>
                     <input class="hide" type="text" value="<%= album.name %>" >
                     <span class="quantity">(<%= album.quantity %>)</span>
@@ -95,15 +95,11 @@
                     <img src="<%= images[0].src %>"/>
                 </div>
                 <div class="image-info">
-                    <p>名称：<input type="text" value="名称"></p>
+                    <p>名称：<input type="text" name="name" placeholder="名称" value=""></p>
                     <div class="category">
                         分类：
                         <div class="category-inner">
-                            <p><input type="checkbox" value="分类1"> 分类1</p>
-                            <p><input type="checkbox" value="分类1"> 分类1</p>
-                            <p><input type="checkbox" value="分类1"> 分类1</p>
-                            <p><input type="checkbox" value="分类1"> 分类1</p>
-                            <p><input type="checkbox" value="分类1"> 分类1</p>
+                            <p class="template hide"><label><input type="checkbox" value=""> <span class="album-name">分类1</span></label></p>
                         </div>
                     </div>
                     <div class="button text-center">
@@ -112,8 +108,8 @@
                 </div>
             </div>
             <i class="icon iconfont close">&#xe607;</i>
-            <i class="icon iconfont left">&#xe606;</i>
-            <i class="icon iconfont right">&#xe608;</i>
+            <!-- <i class="icon iconfont left">&#xe606;</i>
+            <i class="icon iconfont right">&#xe608;</i> -->
         </div>
     </main>
     <div class="hidden-info hide">
