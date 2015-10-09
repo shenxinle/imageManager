@@ -4,14 +4,30 @@ $(function () {
         albums: JSON.parse($('.hidden-info [name="albums"]').val()),
         images: JSON.parse($('.hidden-info [name="images"]').val())
     }
+
+    // 全局公用参数维护
     imageManager.albumsMaxSort = imageManager.albums[imageManager.albums.length-1].sort;
-    imageManager.imagesMaxSort = imageManager.images[imageManager.images.length-1].sort;
+    if (imageManager.images.length) {
+        imageManager.imagesMaxSort = imageManager.images[imageManager.images.length-1].sort;
+    } else {
+        imageManager.imagesMaxSort = 0;
+    }
+
+    imageManager.albumAll = {
+        _id: imageManager.albums[0]._id,
+        name: imageManager.albums[0].name
+    };
     imageManager.thisAlbum = {
         _id: imageManager.albums[0]._id,
         name: imageManager.albums[0].name
     };
-    // console.log(imageManager.albums);
-    // console.log(imageManager.images);
+    
+    // 全局公用函数维护
+    imageManager.func = {
+        addPhoto: addPhoto,  // arguments: [photo Object]
+        albumQuantityModify: albumQuantityModify
+    }
+
 
 // go to album
     $('.aside .nav li').on('click', function () {
@@ -35,7 +51,7 @@ $(function () {
 
                 $('.main .images > section:not(".photo-template")').remove();
                 for(var i = 0; i < msg.images.length; i++) {
-                    addPhoto(msg.images[i]);
+                    imageManager.func.addPhoto(msg.images[i]);
                 }
 
                 imageManager.thisAlbum = {
@@ -53,6 +69,12 @@ $(function () {
         photoSection.find('.info .name').text(photo.name);
 
         $('.main .images').append(photoSection);
+    }
+
+    function albumQuantityModify(albumId, plus) {
+        var $quantity = $('.aside .nav li[data-album-id="' + albumId + '"] .quantity');
+        var quan = parseInt($quantity.text().replace(/\(|\)/g, '').trim());
+        $quantity.text('(' + (plus ? ++quan : --quan) + ')');
     }
 });
 
@@ -202,12 +224,12 @@ $(function () {
     });
     uploader.on('uploadSuccess', function (file, msg) {
         if (msg.title === 'success') {
-            var photoSection = $('.main .images .photo-template').clone();
-            photoSection.removeClass('hide photo-template').attr('data-image-id', msg.photo._id)
-                .find('img').attr('src', msg.photo.src);
-            photoSection.find('.info .name').text(msg.photo.name);
+            imageManager.func.addPhoto(msg.photo);
 
-            $('.main .images').append(photoSection);
+            imageManager.func.albumQuantityModify(imageManager.thisAlbum._id, true);
+            if (imageManager.thisAlbum._id !== imageManager.albumAll._id) {
+                imageManager.func.albumQuantityModify(imageManager.albumAll._id, true);
+            }
 
             imageManager.imagesMaxSort++;
         }
@@ -277,6 +299,12 @@ $(function () {
             }).done(function (msg) {
                 if(msg.title === 'success') {
                     thisSection.remove();
+
+                    imageManager.func.albumQuantityModify(imageManager.albumAll._id, false);
+                    msg.photo.albums.split(/\s*,\s*/).forEach(function (item, index, arr) {
+                        imageManager.func.albumQuantityModify(item, false);
+                        // console.log(arr);
+                    });
                 }
             });
         }
@@ -357,7 +385,10 @@ $(function () {
                     $albumItem.appendTo($checkboxTemplate.parent());
                 });
 
-                $operation.attr('data-image-id', thisPhoto._id).removeClass('hide');
+                $operation.attr('data-image-id', thisPhoto._id)
+                    .attr('data-name', thisPhoto.name)
+                    .attr('data-image-albums', msg.photo.albums)
+                    .removeClass('hide');
             }
         });
     }
@@ -365,7 +396,9 @@ $(function () {
         var $operation = $(this).parents('.main .operation');
         var thisPhoto = {
             _id: $operation.attr('data-image-id'),
+            oldName: $operation.attr('data-name'),
             name: $operation.find('input[name="name"]').val(),
+            oldAlbums: $operation.attr('data-image-albums'),
             albums: ''
         };
         var albumsArr = [];
@@ -376,12 +409,36 @@ $(function () {
             }
         });
         thisPhoto.albums = albumsArr.join(',');
+
+        if (thisPhoto.oldName === thisPhoto.name && thisPhoto.oldAlbums === thisPhoto.albums) {
+            return;
+        }
+
         $.ajax({
             url: 'ajax/changePhotoInfo',
             method: 'POST',
             data: thisPhoto
         }).done(function (msg) {
             if(msg.title === 'success') {
+                // photo remove, rename
+                if (thisPhoto.albums.search(imageManager.thisAlbum._id) !== -1 || imageManager.thisAlbum.name === '全部') {
+                    // rename
+                    if(thisPhoto.name !== thisPhoto.oldName) {
+                        $('.main .images > section[data-image-id="' + thisPhoto._id + '"] .name').text(thisPhoto.name);
+                    }
+                } else {
+                    // remove
+                    $('.main .images > section[data-image-id="' + thisPhoto._id + '"]').remove();
+                }
+
+                // album quantity update
+                thisPhoto.oldAlbums.split(/\s*,\s*/).forEach(function (item, index, arr) {
+                    imageManager.func.albumQuantityModify(item, false);
+                });
+                thisPhoto.albums.split(/\s*,\s*/).forEach(function (item, index, arr) {
+                    imageManager.func.albumQuantityModify(item, true);
+                });
+
                 closeOperation();
             }
         });

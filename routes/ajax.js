@@ -117,21 +117,37 @@ router.post('/addPhoto', multipartMiddleware, function(req, res, next) {
             console.log('photo move error');
             status = 500;
             msg.title = 'failed';
+            res.status(status).send(msg);
         }
         db.Photo.create({
             name: name,
             src: src,
-            sort: sort,
-            albums: albumId
+            albums: albumId,
+            sort: sort
         }, function (err, doc) {
             if(err) {
                 console.log('save to db error');
                 status = 500;
                 msg.title = 'failed';
+                res.status(status).send(msg);
             }
-            // console.log(doc);
             msg.photo = doc;
-            res.status(status).send(msg);
+            // db.Album update
+            db.Album.findOne({_id: album._id}, function (err, doc) {
+                var quan = doc.quantity;
+                db.Album.update({_id: album._id}, {quantity: quan+1}, function (err, raw) {
+                    if (album.name !== '全部') {
+                        db.Album.findOne({name: '全部'}, function (err, doc) {
+                            var quanAll = doc.quantity;
+                            db.Album.update({_id: doc._id}, {quantity: quanAll+1}, function (err, raw) {
+                                res.status(status).send(msg);
+                            });
+                        });
+                    } else {
+                        res.status(status).send(msg);
+                    }
+                });
+            });
         });
     });
 });
@@ -145,14 +161,35 @@ router.post('/deletePhoto', function(req, res, next) {
             content: 'remove photo ' + name
         };
 
-    db.Photo.remove({_id: _id}, function (err) {
-        if (err) {
-            console.log('remove photo %s failed', name);
-            status = 500;
-            msg.title = 'failed';
-        }
-        res.status(status).send(msg);
-    })
+    db.Photo.findOne({_id: _id}).exec(function (err, doc) {
+        msg.photo = doc;
+        db.Photo.remove({_id: _id}, function (err) {
+            if (err) {
+                console.log('remove photo %s failed', name);
+                status = 500;
+                msg.title = 'failed';
+            }
+            // db.Album quantity update
+            if (msg.photo.albums) {
+                msg.photo.albums.split(/\s*,\s*/).forEach(function (item, index, arr) {
+                    db.Album.findOne({_id: item}, function (err, doc) {
+                        if (err) {
+                            console.log('deletePhoto----db.Album quantity update error');
+                        } else {
+                            doc.quantity--;
+                            doc.save();
+                        }
+                    });
+                });
+            }
+            db.Album.findOne({name: '全部'}, function (err, doc) {
+                doc.quantity--;
+                doc.save();
+            });
+
+            res.status(status).send(msg);
+        });
+    });
 });
 
 router.post('/getOperationPhotoInfo', function(req, res, next) {
@@ -186,6 +223,7 @@ router.post('/getOperationPhotoInfo', function(req, res, next) {
 router.post('/changePhotoInfo', function(req, res, next) {
     var _id = req.body._id,
         name = req.body.name,
+        oldAlbums = req.body.oldAlbums,
         albums = req.body.albums;
     var status = 200,
         msg = {
@@ -199,6 +237,29 @@ router.post('/changePhotoInfo', function(req, res, next) {
             status = 500;
             msg.title = 'failed';
         }
+        // album quantity update
+        oldAlbums.split(/\s*,\s*/).forEach(function (item, index, arr) {
+            db.Album.findOne({_id: item}, function (err, doc) {
+                if (err) {
+                    console.log('changePhotoInfo---update album quantity error');
+                } else {
+                    doc.quantity--;
+                    doc.save();
+                }
+            });
+        });
+
+        albums.split(/\s*,\s*/).forEach(function (item, index, arr) {
+            db.Album.findOne({_id: item}, function (err, doc) {
+                if (err) {
+                    console.log('changePhotoInfo---update album quantity error');
+                } else {
+                    doc.quantity++;
+                    doc.save();
+                }
+            });
+        });
+
         msg.raw = raw;
         res.status(status).send(msg);
     });
