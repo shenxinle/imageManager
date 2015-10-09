@@ -1,7 +1,7 @@
 $(function () {
 // data maintenance
     var extraData = JSON.parse($('.hidden-info [name="extraData"]').val());
-    console.log(extraData);
+
     window.imageManager = {
         albumsMaxSort: extraData.albumsMaxSort,
         imagesMaxSort: extraData.imagesMaxSort,
@@ -14,7 +14,6 @@ $(function () {
             name: extraData.thisAlbum.name
         }
     };
-    console.log(imageManager);
 
     // 全局公用函数维护
     imageManager.func = {
@@ -179,7 +178,8 @@ $(function () {
             // console.log(msg);
             if (msg.title === 'success') {
                 var addLi = $('.aside .nav li').last().clone();
-                addLi.attr('data-album-id', msg.album._id);
+                addLi.attr('data-album-id', msg.album._id)
+                    .removeClass('on');
                 addLi.find('.name').text(msg.album.name);
                 addLi.find('.quantity').text('(' + msg.album.quantity + ')');
                 addLi.find('input').val(msg.album.name);
