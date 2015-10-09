@@ -15,8 +15,16 @@ router.get('/', function(req, res, next) {
             if (err) {
                 console.log('query photos failed');
             }
-            // console.log(albums, images);
-            res.render('index', { albums: albums, images: images });
+            var extraData = {
+                albumsMaxSort: albums[albums.length - 1].sort,
+                imagesMaxSort: 0,
+                albumAll: albums[0],
+                thisAlbum: albums[0]
+            }
+            if (images.length) {
+                extraData.imagesMaxSort = images[images.length - 1].sort;
+            }
+            res.render('index', { albums: albums, images: images, extraData: extraData });
         });
     });
 });

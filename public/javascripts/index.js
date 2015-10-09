@@ -1,36 +1,48 @@
 $(function () {
 // data maintenance
+    var extraData = JSON.parse($('.hidden-info [name="extraData"]').val());
+    console.log(extraData);
     window.imageManager = {
-        albums: JSON.parse($('.hidden-info [name="albums"]').val()),
-        images: JSON.parse($('.hidden-info [name="images"]').val())
-    }
-
-    // 全局公用参数维护
-    imageManager.albumsMaxSort = imageManager.albums[imageManager.albums.length-1].sort;
-    if (imageManager.images.length) {
-        imageManager.imagesMaxSort = imageManager.images[imageManager.images.length-1].sort;
-    } else {
-        imageManager.imagesMaxSort = 0;
-    }
-
-    imageManager.albumAll = {
-        _id: imageManager.albums[0]._id,
-        name: imageManager.albums[0].name
+        albumsMaxSort: extraData.albumsMaxSort,
+        imagesMaxSort: extraData.imagesMaxSort,
+        albumAll: {
+            _id: extraData.albumAll._id,
+            name: extraData.albumAll.name
+        },
+        thisAlbum: {
+            _id: extraData.thisAlbum._id,
+            name: extraData.thisAlbum.name
+        }
     };
-    imageManager.thisAlbum = {
-        _id: imageManager.albums[0]._id,
-        name: imageManager.albums[0].name
-    };
-    
+    console.log(imageManager);
+
     // 全局公用函数维护
     imageManager.func = {
         addPhoto: addPhoto,  // arguments: [photo Object]
         albumQuantityModify: albumQuantityModify
     }
 
+    function addPhoto(photo) {
+        var photoSection = $('.main .images .photo-template').clone();
+        photoSection.removeClass('hide photo-template').attr('data-image-id', photo._id)
+            .find('img').attr('src', photo.src);
+        photoSection.find('.info .name').text(photo.name);
 
-// go to album
-    $('.aside .nav li').on('click', function () {
+        $('.main .images').append(photoSection);
+    }
+
+    function albumQuantityModify(albumId, plus) {
+        var $quantity = $('.aside .nav li[data-album-id="' + albumId + '"] .quantity');
+        var quan = parseInt($quantity.text().replace(/\(|\)/g, '').trim());
+        $quantity.text('(' + (plus ? ++quan : --quan) + ')');
+    }
+
+/*
+** go to album
+*/
+    $('.aside .nav li').on('click', getAlbumContent);
+
+    function getAlbumContent() {
         var thisLi = $(this);
         if (thisLi.hasClass('on')) {
             return;
@@ -58,28 +70,14 @@ $(function () {
                     _id: _id,
                     name: name
                 };
+                // location.hash = (imageManager.thisAlbum._id === imageManager.albumAll._id) ? '' : imageManager.thisAlbum._id;
             }
         });
-    });
-
-    function addPhoto(photo) {
-        var photoSection = $('.main .images .photo-template').clone();
-        photoSection.removeClass('hide photo-template').attr('data-image-id', photo._id)
-            .find('img').attr('src', photo.src);
-        photoSection.find('.info .name').text(photo.name);
-
-        $('.main .images').append(photoSection);
     }
 
-    function albumQuantityModify(albumId, plus) {
-        var $quantity = $('.aside .nav li[data-album-id="' + albumId + '"] .quantity');
-        var quan = parseInt($quantity.text().replace(/\(|\)/g, '').trim());
-        $quantity.text('(' + (plus ? ++quan : --quan) + ')');
-    }
-});
-
-$(function () {
-// albums
+/*
+** albums operation
+*/
     // album delete
     $('.aside .nav .icon.delete').on('click', albumDelete);
     // album edit
@@ -187,6 +185,7 @@ $(function () {
                 addLi.find('input').val(msg.album.name);
                 addLi.appendTo('.aside .nav ul');
 
+                addLi.on('click', getAlbumContent);
                 addLi.find('.icon.delete').on('click', albumDelete);
                 addLi.find('.icon.edit').one('click', albumEdit)
                     .trigger('click');
@@ -195,10 +194,10 @@ $(function () {
             }
         });
     }
-});
 
-$(function () {
-//photo operation
+/*
+** photo operation
+*/
     // 初始化Web Uploader
     var uploader = WebUploader.create({
         // 选完文件后，是否自动上传。
